@@ -20,8 +20,8 @@ interface Job {
   status: string
 }
 
-const BOT_API = process.env.NEXT_PUBLIC_BOT_API_URL || 'http://localhost:3000'
-const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || 'http://localhost:8080'
+const BOT_API = process.env.NEXT_PUBLIC_BOT_API_URL || 'https://api.meetbot.ink'
+const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || 'https://api.meetbot.ink'
 
 async function getGoogleToken(): Promise<string | null> {
   try {
