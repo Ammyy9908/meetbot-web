@@ -1,26 +1,99 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Apple HIG Dark Mode color tokens */
+:root {
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #1c1c1e;
+  --card-foreground: #ffffff;
+  --card-elevated: #2c2c2e;
+  --popover: #1c1c1e;
+  --popover-foreground: #ffffff;
+  --primary: #0a84ff;
+  --primary-foreground: #ffffff;
+  --muted: #2c2c2e;
+  --muted-foreground: rgba(235, 235, 245, 0.6);
+  --accent: #0a84ff;
+  --accent-foreground: #ffffff;
+  --destructive: #ff453a;
+  --border: #38383a;
+  --input: #2c2c2e;
+  --ring: #0a84ff;
+  --radius: 12px;
+  /* Apple semantic colors */
+  --apple-label: #ffffff;
+  --apple-secondary-label: rgba(235, 235, 245, 0.6);
+  --apple-tertiary-label: rgba(235, 235, 245, 0.3);
+  --apple-separator: #38383a;
+  --apple-surface: #1c1c1e;
+  --apple-surface-elevated: #2c2c2e;
+  --apple-blue: #0a84ff;
+  --apple-green: #30d158;
+  --apple-red: #ff453a;
+  --apple-yellow: #ffd60a;
+}
+
+.dark {
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #1c1c1e;
+  --card-foreground: #ffffff;
+  --popover: #1c1c1e;
+  --popover-foreground: #ffffff;
+  --primary: #0a84ff;
+  --primary-foreground: #ffffff;
+  --muted: #2c2c2e;
+  --muted-foreground: rgba(235, 235, 245, 0.6);
+  --accent: #0a84ff;
+  --accent-foreground: #ffffff;
+  --destructive: #ff453a;
+  --border: #38383a;
+  --input: #2c2c2e;
+  --ring: #0a84ff;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    box-sizing: border-box;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground;
+    /* Apple system font stack — SF Pro on Apple devices, system-ui fallback elsewhere */
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  ::selection {
+    background: rgba(10, 132, 255, 0.3);
+    color: #ffffff;
+  }
 }
