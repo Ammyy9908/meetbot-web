@@ -181,7 +181,7 @@ export default function CalendarPage() {
   async function createMeeting() {
     if (!newTitle || !newDate || !newTime) return
     if (newPlatform === 'zoom' && zoomMode === 'custom' && !newZoomUrl.trim()) {
-      setCreateError('Please enter a valid Zoom meeting link or choose Auto-Generate')
+      setCreateError('Please enter a valid Zoom meeting link or choose Create Automatically')
       return
     }
 
@@ -189,7 +189,7 @@ export default function CalendarPage() {
     setCreateError('')
     try {
       const activeToken = await getGoogleToken() || googleToken
-      if (!activeToken) throw new Error('No Google token available. Please sign in again.')
+      if (!activeToken) throw new Error('No Google account connected. Please sign in again.')
       setGoogleToken(activeToken)
 
       const startDt = new Date(`${newDate}T${newTime}:00`)
@@ -211,7 +211,7 @@ export default function CalendarPage() {
           })
           const zoomData = await zoomRes.json()
           if (!zoomRes.ok || !zoomData.joinUrl) {
-            throw new Error(zoomData.error || 'Failed to auto-generate Zoom meeting via API')
+            throw new Error(zoomData.error || 'Failed to create Zoom meeting link')
           }
           targetMeetUrl = zoomData.joinUrl
         } else {
@@ -431,32 +431,40 @@ export default function CalendarPage() {
               />
             </div>
 
-            {/* Zoom Link Mode Selector */}
+            {/* Zoom Link Selector */}
             {newPlatform === 'zoom' && (
               <div className="space-y-2 p-3 bg-zinc-950 border border-zinc-800 rounded-lg">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-zinc-300">Zoom Link Source</span>
+                  <span className="text-xs font-medium text-zinc-300">Zoom Link</span>
                   <div className="flex text-xs bg-zinc-900 border border-zinc-800 rounded p-0.5">
                     <button
                       type="button"
                       onClick={() => setZoomMode('auto')}
-                      className={`px-2 py-0.5 rounded text-[11px] transition-all ${zoomMode === 'auto' ? 'bg-blue-600 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'}`}
+                      className={`px-2.5 py-1 rounded text-[11px] font-medium transition-all ${
+                        zoomMode === 'auto'
+                          ? 'bg-blue-600 text-white'
+                          : 'text-zinc-400 hover:text-zinc-200'
+                      }`}
                     >
-                      ⚡ Auto-Generate
+                      Create Automatically
                     </button>
                     <button
                       type="button"
                       onClick={() => setZoomMode('custom')}
-                      className={`px-2 py-0.5 rounded text-[11px] transition-all ${zoomMode === 'custom' ? 'bg-blue-600 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'}`}
+                      className={`px-2.5 py-1 rounded text-[11px] font-medium transition-all ${
+                        zoomMode === 'custom'
+                          ? 'bg-blue-600 text-white'
+                          : 'text-zinc-400 hover:text-zinc-200'
+                      }`}
                     >
-                      Paste Link
+                      Paste Existing Link
                     </button>
                   </div>
                 </div>
 
                 {zoomMode === 'auto' ? (
                   <p className="text-[11px] text-zinc-400 leading-relaxed">
-                    MeetBot will automatically provision a new Zoom meeting ID with passcode via Server-to-Server OAuth.
+                    A Zoom link will be created automatically and added to your calendar event.
                   </p>
                 ) : (
                   <div>
@@ -466,7 +474,7 @@ export default function CalendarPage() {
                       placeholder="https://zoom.us/j/1234567890?pwd=..."
                       className="bg-zinc-900 border-zinc-800 font-mono text-xs mt-1.5 rounded-lg"
                     />
-                    <p className="text-[10px] text-zinc-500 mt-1">Paste your Zoom Personal Meeting link</p>
+                    <p className="text-[10px] text-zinc-500 mt-1">Paste your Zoom meeting link</p>
                   </div>
                 )}
               </div>

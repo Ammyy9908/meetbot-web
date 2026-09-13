@@ -13,14 +13,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <span className="text-zinc-600">/</span>
             <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-medium text-emerald-400">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Bot Pipeline Operational
+              Bot Active
             </div>
           </div>
 
           <div className="flex items-center gap-4">
             <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-xs text-zinc-400">
               <Activity className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Google Meet & Zoom S2S Live</span>
+              <span>Google Meet & Zoom Connected</span>
             </div>
           </div>
         </header>
