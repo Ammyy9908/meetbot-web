@@ -84,6 +84,7 @@ export default function CalendarPage() {
 
   const [createOpen, setCreateOpen] = useState(false)
   const [newPlatform, setNewPlatform] = useState<'google_meet' | 'zoom'>('google_meet')
+  const [zoomMode, setZoomMode] = useState<'auto' | 'custom'>('auto')
   const [newZoomUrl, setNewZoomUrl] = useState('')
   const [newTitle, setNewTitle] = useState('')
   const [newDate, setNewDate] = useState('')
@@ -171,8 +172,8 @@ export default function CalendarPage() {
 
   async function createMeeting() {
     if (!newTitle || !newDate || !newTime) return
-    if (newPlatform === 'zoom' && !newZoomUrl.trim()) {
-      setCreateError('Please enter a valid Zoom meeting link')
+    if (newPlatform === 'zoom' && zoomMode === 'custom' && !newZoomUrl.trim()) {
+      setCreateError('Please enter a valid Zoom meeting link or choose Auto-Generate')
       return
     }
 
@@ -185,6 +186,32 @@ export default function CalendarPage() {
 
       const startDt = new Date(`${newDate}T${newTime}:00`)
       const endDt = addMinutes(startDt, parseInt(newDuration))
+      let targetMeetUrl = ''
+
+      // 1. If Zoom Auto-generate: call Zoom REST API
+      if (newPlatform === 'zoom') {
+        if (zoomMode === 'auto') {
+          const zoomRes = await fetch(`${BOT_API}/zoom/create-meeting`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              topic: newTitle,
+              startTime: startDt.toISOString(),
+              duration: parseInt(newDuration),
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            }),
+          })
+          const zoomData = await zoomRes.json()
+          if (!zoomRes.ok || !zoomData.joinUrl) {
+            throw new Error(zoomData.error || 'Failed to auto-generate Zoom meeting via API')
+          }
+          targetMeetUrl = zoomData.joinUrl
+        } else {
+          targetMeetUrl = newZoomUrl.trim()
+        }
+      }
+
+      // 2. Build Google Calendar Event
       const body: Record<string, unknown> = {
         summary: newTitle,
         start: { dateTime: startDt.toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone },
@@ -196,8 +223,8 @@ export default function CalendarPage() {
           createRequest: { requestId: crypto.randomUUID(), conferenceSolutionKey: { type: 'hangoutsMeet' } },
         }
       } else if (newPlatform === 'zoom') {
-        body.location = newZoomUrl.trim()
-        body.description = `Zoom Meeting Link: ${newZoomUrl.trim()}\n\nRecorded and summarized by MeetBot.`
+        body.location = targetMeetUrl
+        body.description = `Zoom Meeting: ${targetMeetUrl}\n\nRecorded and summarized by MeetBot.`
       }
 
       if (newGuests.trim()) {
@@ -241,16 +268,16 @@ export default function CalendarPage() {
       setNewGuests('')
       await fetchEvents(activeToken)
 
-      // Determine meeting URL to schedule bot
-      const targetMeetUrl = newPlatform === 'zoom' ? newZoomUrl.trim() : event.hangoutLink
-      if (targetMeetUrl) {
+      // 3. Determine final meeting URL to schedule bot
+      const finalBotUrl = newPlatform === 'zoom' ? targetMeetUrl : event.hangoutLink
+      if (finalBotUrl) {
         const email = await getUserEmail()
         const attendeeEmails = (event.attendees || []).map((a: { email: string }) => a.email).filter(Boolean)
         await fetch(`${BOT_API}/bot/schedule`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            meetUrl: targetMeetUrl,
+            meetUrl: finalBotUrl,
             title: event.summary || newTitle,
             organizerEmail: email,
             attendeeEmails,
@@ -368,15 +395,42 @@ export default function CalendarPage() {
             </div>
 
             {newPlatform === 'zoom' && (
-              <div>
-                <label className="text-xs text-zinc-400 mb-1.5 block">Zoom Meeting Link</label>
-                <Input
-                  value={newZoomUrl}
-                  onChange={e => setNewZoomUrl(e.target.value)}
-                  placeholder="https://zoom.us/j/1234567890?pwd=..."
-                  className="bg-zinc-950 border-zinc-700 font-mono text-xs"
-                />
-                <p className="text-[11px] text-zinc-500 mt-1">Paste your Zoom meeting or personal room link</p>
+              <div className="space-y-2 p-3 bg-zinc-950/60 border border-zinc-800/80 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-zinc-300">Zoom Link Source</span>
+                  <div className="flex text-[11px] bg-zinc-900 border border-zinc-800 rounded p-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setZoomMode('auto')}
+                      className={`px-2 py-0.5 rounded ${zoomMode === 'auto' ? 'bg-blue-600 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'}`}
+                    >
+                      ⚡ Auto-generate
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setZoomMode('custom')}
+                      className={`px-2 py-0.5 rounded ${zoomMode === 'custom' ? 'bg-blue-600 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'}`}
+                    >
+                      Paste Link
+                    </button>
+                  </div>
+                </div>
+
+                {zoomMode === 'auto' ? (
+                  <p className="text-[11px] text-zinc-400">
+                    A new Zoom meeting ID will be automatically generated via Zoom API when created.
+                  </p>
+                ) : (
+                  <div>
+                    <Input
+                      value={newZoomUrl}
+                      onChange={e => setNewZoomUrl(e.target.value)}
+                      placeholder="https://zoom.us/j/1234567890?pwd=..."
+                      className="bg-zinc-900 border-zinc-700 font-mono text-xs mt-1.5"
+                    />
+                    <p className="text-[10px] text-zinc-500 mt-1">Paste your personal room or scheduled Zoom link</p>
+                  </div>
+                )}
               </div>
             )}
 
