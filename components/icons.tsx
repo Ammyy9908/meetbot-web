@@ -13,10 +13,14 @@ export function GoogleMeetIcon({ className = "w-5 h-5" }: { className?: string }
 
 export function ZoomIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="24" height="24" rx="5.5" fill="#0B5CFF"/>
-      <path fill="#FFFFFF" d="M4.5 8.5C4.5 7.4 5.4 6.5 6.5 6.5H13C14.1 6.5 15 7.4 15 8.5V15.5C15 16.6 14.1 17.5 13 17.5H6.5C5.4 17.5 4.5 16.6 4.5 15.5V8.5Z"/>
-      <path fill="#FFFFFF" d="M16 10.38L19.45 7.91C19.78 7.67 20.25 7.91 20.25 8.32V15.68C20.25 16.09 19.78 16.33 19.45 16.09L16 13.62V10.38Z"/>
+    <svg className={className} viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="512" height="512" rx="120" fill="#2D8CFF"/>
+      <path
+        d="M150.2 329.2h169.3V205c0-18.7-15.2-33.9-33.9-33.9H116.4v124.2c0 18.7 15.1 33.9 33.8 33.9M342.1 284l67.7 45.1v-158l-67.7 45.2z"
+        fill="#FFFFFF"
+        fillRule="evenodd"
+        clipRule="evenodd"
+      />
     </svg>
   )
 }
