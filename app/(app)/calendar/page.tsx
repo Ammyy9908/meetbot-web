@@ -13,6 +13,7 @@ interface CalEvent {
   summary: string
   start: { dateTime: string }
   hangoutLink: string
+  attendees?: { email: string }[]
 }
 
 interface Job {
@@ -168,6 +169,7 @@ export default function CalendarPage() {
       // Schedule bot directly at the meeting start time
       if (event.hangoutLink) {
         const email = await getUserEmail()
+        const attendeeEmails = (event.attendees || []).map((a: { email: string }) => a.email).filter(Boolean)
         await fetch(`${BOT_API}/bot/schedule`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -175,6 +177,7 @@ export default function CalendarPage() {
             meetUrl: event.hangoutLink,
             title: event.summary,
             organizerEmail: email,
+            attendeeEmails,
             startAt: event.start.dateTime,
             eventId: event.id,
           }),
@@ -188,10 +191,16 @@ export default function CalendarPage() {
 
   async function scheduleBot(event: CalEvent) {
     const email = await getUserEmail()
+    const attendeeEmails = (event.attendees || []).map(a => a.email).filter(Boolean)
     const res = await fetch(`${BOT_API}/bot/join`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ meetUrl: event.hangoutLink, title: event.summary, organizerEmail: email }),
+      body: JSON.stringify({
+        meetUrl: event.hangoutLink,
+        title: event.summary,
+        organizerEmail: email,
+        attendeeEmails,
+      }),
     })
     const data = await res.json()
     if (data.jobId) {
