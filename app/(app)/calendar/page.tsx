@@ -12,7 +12,8 @@ interface CalEvent {
   id: string
   summary: string
   start: { dateTime: string }
-  hangoutLink: string
+  meetingUrl: string
+  platform: 'google_meet' | 'zoom' | 'other'
   attendees?: { email: string }[]
 }
 
@@ -31,6 +32,45 @@ async function getGoogleToken(): Promise<string | null> {
     const user = await res.json()
     return user.googleToken || null
   } catch { return null }
+}
+
+function extractMeetingInfo(e: any): { meetingUrl: string; platform: 'google_meet' | 'zoom' | 'other' } | null {
+  // 1. hangoutLink
+  if (e.hangoutLink) {
+    return { meetingUrl: e.hangoutLink, platform: 'google_meet' }
+  }
+
+  // 2. conferenceData entryPoints
+  if (e.conferenceData?.entryPoints) {
+    for (const ep of e.conferenceData.entryPoints) {
+      if (ep.uri) {
+        if (ep.uri.includes('zoom.us')) return { meetingUrl: ep.uri, platform: 'zoom' }
+        if (ep.uri.includes('meet.google.com')) return { meetingUrl: ep.uri, platform: 'google_meet' }
+      }
+    }
+  }
+
+  // 3. Location field
+  if (e.location) {
+    const m = e.location.match(/https?:\/\/[^\s<>"'\)]+/)
+    if (m) {
+      if (m[0].includes('zoom.us')) return { meetingUrl: m[0], platform: 'zoom' }
+      if (m[0].includes('meet.google.com')) return { meetingUrl: m[0], platform: 'google_meet' }
+    }
+  }
+
+  // 4. Description field
+  if (e.description) {
+    const matches = e.description.match(/https?:\/\/[^\s<>"'\)]+/g)
+    if (matches) {
+      for (const url of matches) {
+        if (url.includes('zoom.us')) return { meetingUrl: url, platform: 'zoom' }
+        if (url.includes('meet.google.com')) return { meetingUrl: url, platform: 'google_meet' }
+      }
+    }
+  }
+
+  return null
 }
 
 export default function CalendarPage() {
@@ -99,7 +139,22 @@ export default function CalendarPage() {
         }
       }
       const data = await res.json()
-      setEvents((data.items || []).filter((e: CalEvent) => e.hangoutLink))
+      const parsedEvents: CalEvent[] = (data.items || [])
+        .map((e: any) => {
+          const info = extractMeetingInfo(e)
+          if (!info) return null
+          return {
+            id: e.id,
+            summary: e.summary || 'Untitled Meeting',
+            start: e.start || {},
+            meetingUrl: info.meetingUrl,
+            platform: info.platform,
+            attendees: e.attendees,
+          }
+        })
+        .filter(Boolean)
+
+      setEvents(parsedEvents)
     } catch { /* ignore */ }
     setLoading(false)
   }
@@ -200,7 +255,7 @@ export default function CalendarPage() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        meetUrl: event.hangoutLink,
+        meetUrl: event.meetingUrl,
         title: event.summary,
         organizerEmail: email,
         attendeeEmails,
@@ -246,7 +301,7 @@ export default function CalendarPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Calendar</h1>
-          <p className="text-muted-foreground text-sm mt-1">Upcoming Google Meet events</p>
+          <p className="text-muted-foreground text-sm mt-1">Upcoming Google Meet & Zoom events</p>
         </div>
         <Button onClick={() => setCreateOpen(true)} className="gap-2">
           <Video className="w-4 h-4" />
@@ -297,11 +352,21 @@ export default function CalendarPage() {
       <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 mb-8">
         <div className="flex items-center gap-2 mb-4">
           <Plus className="w-4 h-4 text-zinc-400" />
-          <p className="text-sm font-medium">Schedule bot for existing URL</p>
+          <p className="text-sm font-medium">Join or schedule bot for any meeting</p>
         </div>
         <div className="flex gap-3">
-          <Input value={manualUrl} onChange={e => setManualUrl(e.target.value)} placeholder="https://meet.google.com/abc-defg-hij" className="font-mono text-xs bg-zinc-950 border-zinc-700 flex-1" />
-          <Input value={manualTitle} onChange={e => setManualTitle(e.target.value)} placeholder="Title" className="bg-zinc-950 border-zinc-700 w-36" />
+          <Input
+            value={manualUrl}
+            onChange={e => setManualUrl(e.target.value)}
+            placeholder="https://zoom.us/j/... or https://meet.google.com/..."
+            className="font-mono text-xs bg-zinc-950 border-zinc-700 flex-1"
+          />
+          <Input
+            value={manualTitle}
+            onChange={e => setManualTitle(e.target.value)}
+            placeholder="Title (optional)"
+            className="bg-zinc-950 border-zinc-700 w-36"
+          />
           <Button onClick={submitManual} disabled={!manualUrl || submitting} size="sm" className="shrink-0">
             {submitting ? 'Sending...' : 'Send Bot'}
           </Button>
@@ -331,21 +396,31 @@ export default function CalendarPage() {
         ) : events.length === 0 ? (
           <div className="text-center py-12">
             <Calendar className="w-10 h-10 mx-auto mb-3 text-zinc-700" />
-            <p className="text-sm text-zinc-400">No upcoming Meet events found</p>
+            <p className="text-sm text-zinc-400">No upcoming meetings found</p>
           </div>
         ) : (
           <div className="space-y-2">
             {events.map(event => {
               const job = jobs[event.id]
+              const isZoom = event.platform === 'zoom'
               return (
                 <div key={event.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex items-center justify-between gap-4">
                   <div className="min-w-0">
-                    <p className="text-sm font-medium truncate">{event.summary || 'No title'}</p>
-                    <p className="text-xs text-zinc-500 mt-0.5">{format(new Date(event.start.dateTime), 'MMM d · h:mm a')}</p>
-                    <a href={event.hangoutLink} target="_blank" rel="noopener noreferrer"
-                      className="text-xs text-blue-400 hover:text-blue-300 font-mono flex items-center gap-1 mt-1">
-                      {event.hangoutLink.replace('https://', '')}
-                      <ExternalLink className="w-3 h-3" />
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium truncate">{event.summary || 'No title'}</p>
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                        isZoom
+                          ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                          : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                      }`}>
+                        {isZoom ? 'Zoom' : 'Google Meet'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-zinc-500 mt-0.5">{format(new Date(event.start.dateTime || Date.now()), 'MMM d · h:mm a')}</p>
+                    <a href={event.meetingUrl} target="_blank" rel="noopener noreferrer"
+                      className="text-xs text-blue-400 hover:text-blue-300 font-mono flex items-center gap-1 mt-1 truncate max-w-md">
+                      {event.meetingUrl.replace('https://', '')}
+                      <ExternalLink className="w-3 h-3 shrink-0" />
                     </a>
                   </div>
                   <div className="shrink-0">
