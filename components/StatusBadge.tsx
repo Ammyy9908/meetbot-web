@@ -1,28 +1,70 @@
-/* Apple HIG pill-shaped status badges — colored backgrounds at 15% opacity with full-opacity text */
-const CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  queued:        { label: 'Queued',     color: 'rgba(235,235,245,0.6)',  bg: 'rgba(235,235,245,0.08)' },
-  joining:       { label: 'Joining',   color: '#ffd60a',                bg: 'rgba(255,214,10,0.15)'  },
-  'in-progress': { label: 'Recording', color: '#0a84ff',                bg: 'rgba(10,132,255,0.15)'  },
-  done:          { label: 'Done',      color: '#30d158',                bg: 'rgba(48,209,88,0.15)'   },
-  failed:        { label: 'Failed',    color: '#ff453a',                bg: 'rgba(255,69,58,0.15)'   },
+'use client'
+
+interface StatusConfig {
+  label: string
+  color: string
+  bg: string
+  border: string
+  dotColor: string
+  isLive?: boolean
+}
+
+const CONFIG: Record<string, StatusConfig> = {
+  queued: {
+    label: 'Queued',
+    color: '#a1a1aa',
+    bg: 'rgba(161, 161, 170, 0.08)',
+    border: 'rgba(161, 161, 170, 0.2)',
+    dotColor: '#a1a1aa',
+  },
+  joining: {
+    label: 'Joining Call',
+    color: '#fbbf24',
+    bg: 'rgba(251, 191, 36, 0.12)',
+    border: 'rgba(251, 191, 36, 0.3)',
+    dotColor: '#fbbf24',
+    isLive: true,
+  },
+  'in-progress': {
+    label: 'Recording & Diarizing',
+    color: '#38bdf8',
+    bg: 'rgba(56, 189, 248, 0.12)',
+    border: 'rgba(56, 189, 248, 0.3)',
+    dotColor: '#38bdf8',
+    isLive: true,
+  },
+  done: {
+    label: 'Summarized',
+    color: '#34d399',
+    bg: 'rgba(52, 211, 153, 0.12)',
+    border: 'rgba(52, 211, 153, 0.25)',
+    dotColor: '#34d399',
+  },
+  failed: {
+    label: 'Failed',
+    color: '#f87171',
+    bg: 'rgba(248, 113, 113, 0.12)',
+    border: 'rgba(248, 113, 113, 0.25)',
+    dotColor: '#f87171',
+  },
 }
 
 export function StatusBadge({ status }: { status: string }) {
   const cfg = CONFIG[status] || CONFIG.queued
+
   return (
-    <span style={{
-      display: 'inline-flex',
-      alignItems: 'center',
-      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
-      fontSize: '12px',
-      fontWeight: 500,
-      letterSpacing: '-0.01em',
-      color: cfg.color,
-      background: cfg.bg,
-      padding: '3px 10px',
-      borderRadius: '20px',
-      whiteSpace: 'nowrap',
-    }}>
+    <span
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium tracking-tight transition-all"
+      style={{
+        color: cfg.color,
+        background: cfg.bg,
+        border: `1px solid ${cfg.border}`,
+      }}
+    >
+      <span
+        className={`w-1.5 h-1.5 rounded-full ${cfg.isLive ? 'animate-pulse' : ''}`}
+        style={{ backgroundColor: cfg.dotColor }}
+      />
       {cfg.label}
     </span>
   )

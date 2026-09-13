@@ -25,56 +25,46 @@
   --radius-xl: 16px;
 }
 
-/* Apple HIG Dark Mode color tokens */
+/* Obsidian SaaS Dark Mode tokens */
 :root {
-  --background: #000000;
-  --foreground: #ffffff;
-  --card: #1c1c1e;
-  --card-foreground: #ffffff;
-  --card-elevated: #2c2c2e;
-  --popover: #1c1c1e;
-  --popover-foreground: #ffffff;
-  --primary: #0a84ff;
+  --background: #09090b;
+  --foreground: #f4f4f5;
+  --card: #121215;
+  --card-foreground: #f4f4f5;
+  --card-elevated: #18181b;
+  --popover: #121215;
+  --popover-foreground: #f4f4f5;
+  --primary: #3b82f6;
   --primary-foreground: #ffffff;
-  --muted: #2c2c2e;
-  --muted-foreground: rgba(235, 235, 245, 0.6);
-  --accent: #0a84ff;
-  --accent-foreground: #ffffff;
-  --destructive: #ff453a;
-  --border: #38383a;
-  --input: #2c2c2e;
-  --ring: #0a84ff;
+  --muted: #18181b;
+  --muted-foreground: #a1a1aa;
+  --accent: #27272a;
+  --accent-foreground: #f4f4f5;
+  --destructive: #ef4444;
+  --border: #27272a;
+  --input: #18181b;
+  --ring: #3b82f6;
   --radius: 12px;
-  /* Apple semantic colors */
-  --apple-label: #ffffff;
-  --apple-secondary-label: rgba(235, 235, 245, 0.6);
-  --apple-tertiary-label: rgba(235, 235, 245, 0.3);
-  --apple-separator: #38383a;
-  --apple-surface: #1c1c1e;
-  --apple-surface-elevated: #2c2c2e;
-  --apple-blue: #0a84ff;
-  --apple-green: #30d158;
-  --apple-red: #ff453a;
-  --apple-yellow: #ffd60a;
 }
 
 .dark {
-  --background: #000000;
-  --foreground: #ffffff;
-  --card: #1c1c1e;
-  --card-foreground: #ffffff;
-  --popover: #1c1c1e;
-  --popover-foreground: #ffffff;
-  --primary: #0a84ff;
+  --background: #09090b;
+  --foreground: #f4f4f5;
+  --card: #121215;
+  --card-foreground: #f4f4f5;
+  --card-elevated: #18181b;
+  --popover: #121215;
+  --popover-foreground: #f4f4f5;
+  --primary: #3b82f6;
   --primary-foreground: #ffffff;
-  --muted: #2c2c2e;
-  --muted-foreground: rgba(235, 235, 245, 0.6);
-  --accent: #0a84ff;
-  --accent-foreground: #ffffff;
-  --destructive: #ff453a;
-  --border: #38383a;
-  --input: #2c2c2e;
-  --ring: #0a84ff;
+  --muted: #18181b;
+  --muted-foreground: #a1a1aa;
+  --accent: #27272a;
+  --accent-foreground: #f4f4f5;
+  --destructive: #ef4444;
+  --border: #27272a;
+  --input: #18181b;
+  --ring: #3b82f6;
 }
 
 @layer base {
@@ -84,16 +74,86 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* Apple system font stack — SF Pro on Apple devices, system-ui fallback elsewhere */
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
-    font-size: 15px;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Inter', system-ui, sans-serif;
+    font-size: 14.5px;
     line-height: 1.6;
     font-weight: 400;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: #09090b;
+    color: #f4f4f5;
+    overflow-x: hidden;
   }
   ::selection {
-    background: rgba(10, 132, 255, 0.3);
+    background: rgba(59, 130, 246, 0.35);
     color: #ffffff;
   }
 }
+
+/* SaaS Custom Ambient Mesh Background */
+.saas-grid-bg {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.saas-glow-radial {
+  background: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.05) 45%, transparent 70%);
+}
+
+.saas-glow-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%), #121215;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.saas-glow-card:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(59, 130, 246, 0.08);
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* Pulsing Live Dot Animation */
+@keyframes live-pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.animate-live-pulse {
+  animation: live-pulse 2s infinite;
+}
+
+@keyframes live-recording-wave {
+  0%, 100% { height: 4px; }
+  50% { height: 16px; }
+}
+
+.animate-wave-1 { animation: live-recording-wave 1.2s ease-in-out infinite; }
+.animate-wave-2 { animation: live-recording-wave 0.8s ease-in-out 0.2s infinite; }
+.animate-wave-3 { animation: live-recording-wave 1.4s ease-in-out 0.4s infinite; }
+.animate-wave-4 { animation: live-recording-wave 0.9s ease-in-out 0.1s infinite; }

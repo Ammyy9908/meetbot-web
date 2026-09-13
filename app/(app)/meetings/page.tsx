@@ -1,21 +1,15 @@
 import { cookies } from 'next/headers'
-import { StatusBadge } from '@/components/StatusBadge'
+import { MeetingsClient } from './MeetingsClient'
 import Link from 'next/link'
-import { format } from 'date-fns'
+import { Calendar as CalendarIcon, Video } from 'lucide-react'
 
 const MEETINGS_URL = process.env.NEXT_PUBLIC_MEETINGS_SERVICE_URL || 'http://localhost:8081'
-
-const appleFont = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif"
 
 export default async function MeetingsPage() {
   const cookieStore = await cookies()
   const token = cookieStore.get('meetbot_token')?.value || ''
 
-  let meetings: {
-    id: string; title?: string; status: string
-    meetUrl: string; createdAt: string
-    summary?: { tldr?: string }
-  }[] = []
+  let meetings = []
 
   try {
     const res = await fetch(`${MEETINGS_URL}/meetings`, {
@@ -26,158 +20,37 @@ export default async function MeetingsPage() {
   } catch { /* ignore */ }
 
   return (
-    <div style={{
-      padding: '32px 28px',
-      maxWidth: '960px',
-      fontFamily: appleFont,
-    }}>
+    <div className="p-6 md:p-8 max-w-6xl mx-auto space-y-6">
+      
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/80 pb-6">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-2xl font-bold tracking-tight text-white">
+              Meetings Archive
+            </h1>
+            {meetings.length > 0 && (
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
+                {meetings.length} recorded
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-zinc-400">
+            Search transcripts, diarized dialogues, action items, and summaries
+          </p>
+        </div>
 
-      {/* Page header */}
-      <div style={{ marginBottom: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-        <h1 style={{
-          color: '#ffffff',
-          fontSize: '28px',
-          fontWeight: 700,
-          letterSpacing: '-0.02em',
-          margin: 0,
-          lineHeight: 1.15,
-        }}>
-          Meetings
-        </h1>
-        {meetings.length > 0 && (
-          <span style={{
-            color: 'rgba(235,235,245,0.3)',
-            fontSize: '15px',
-          }}>
-            {meetings.length} total
-          </span>
-        )}
+        <Link
+          href="/calendar"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-600/20 transition-all self-start sm:self-auto"
+        >
+          <CalendarIcon className="w-3.5 h-3.5" />
+          <span>Schedule / Join Call</span>
+        </Link>
       </div>
 
-      {meetings.length > 0 ? (
-        <div style={{
-          background: '#1c1c1e',
-          borderRadius: '12px',
-          overflow: 'hidden',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
-        }}>
-          {/* Column headers */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 150px 110px 60px',
-            gap: '16px',
-            padding: '10px 16px',
-            borderBottom: '1px solid #38383a',
-            background: '#2c2c2e',
-          }}>
-            {['Title', 'Date', 'Status', ''].map((h, i) => (
-              <span key={i} style={{
-                fontSize: '11px',
-                fontWeight: 600,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                color: 'rgba(235,235,245,0.3)',
-              }}>
-                {h}
-              </span>
-            ))}
-          </div>
-
-          {/* Rows */}
-          {meetings.map((m, i) => (
-            <div
-              key={m.id}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 150px 110px 60px',
-                gap: '16px',
-                padding: '14px 16px',
-                borderBottom: i < meetings.length - 1 ? '1px solid #38383a' : 'none',
-                alignItems: 'center',
-              }}
-            >
-              {/* Title + tldr */}
-              <div style={{ overflow: 'hidden' }}>
-                <p style={{
-                  color: '#ffffff',
-                  fontSize: '15px',
-                  fontWeight: 500,
-                  margin: 0,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  letterSpacing: '-0.01em',
-                }}>
-                  {m.title || 'Untitled meeting'}
-                </p>
-                {m.summary?.tldr && (
-                  <p style={{
-                    color: 'rgba(235,235,245,0.3)',
-                    fontSize: '13px',
-                    margin: '3px 0 0',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}>
-                    {m.summary.tldr.slice(0, 70)}{m.summary.tldr.length > 70 ? '…' : ''}
-                  </p>
-                )}
-              </div>
-
-              {/* Date */}
-              <span style={{
-                color: 'rgba(235,235,245,0.4)',
-                fontSize: '13px',
-                whiteSpace: 'nowrap',
-              }}>
-                {format(new Date(m.createdAt), 'dd MMM, HH:mm')}
-              </span>
-
-              {/* Status */}
-              <StatusBadge status={m.status} />
-
-              {/* View link */}
-              <div>
-                {m.status === 'done' && (
-                  <Link href={`/meetings/${m.id}`} style={{
-                    color: '#0a84ff',
-                    fontSize: '13px',
-                    fontWeight: 500,
-                    textDecoration: 'none',
-                  }}>
-                    View →
-                  </Link>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div style={{
-          padding: '60px 0',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          textAlign: 'center',
-          gap: '8px',
-        }}>
-          <p style={{
-            color: 'rgba(235,235,245,0.6)',
-            fontSize: '17px',
-            fontWeight: 500,
-            margin: 0,
-          }}>
-            No meetings yet
-          </p>
-          <p style={{
-            color: 'rgba(235,235,245,0.3)',
-            fontSize: '15px',
-            margin: 0,
-          }}>
-            Meetings will appear here after the bot summarizes them.
-          </p>
-        </div>
-      )}
+      {/* Interactive Meetings Client */}
+      <MeetingsClient initialMeetings={meetings} />
     </div>
   )
 }

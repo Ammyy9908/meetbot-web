@@ -6,7 +6,19 @@ import { Input } from '@/components/ui/input'
 import { StatusBadge } from '@/components/StatusBadge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { format, addMinutes } from 'date-fns'
-import { Calendar, Bot, ExternalLink, Plus, Video } from 'lucide-react'
+import { 
+  Calendar as CalendarIcon, 
+  Bot, 
+  ExternalLink, 
+  Plus, 
+  Video, 
+  Zap, 
+  Clock, 
+  Users, 
+  Sparkles, 
+  RefreshCw,
+  Check
+} from 'lucide-react'
 
 interface CalEvent {
   id: string
@@ -35,12 +47,10 @@ async function getGoogleToken(): Promise<string | null> {
 }
 
 function extractMeetingInfo(e: any): { meetingUrl: string; platform: 'google_meet' | 'zoom' | 'other' } | null {
-  // 1. hangoutLink
   if (e.hangoutLink) {
     return { meetingUrl: e.hangoutLink, platform: 'google_meet' }
   }
 
-  // 2. conferenceData entryPoints
   if (e.conferenceData?.entryPoints) {
     for (const ep of e.conferenceData.entryPoints) {
       if (ep.uri) {
@@ -50,7 +60,6 @@ function extractMeetingInfo(e: any): { meetingUrl: string; platform: 'google_mee
     }
   }
 
-  // 3. Location field
   if (e.location) {
     const m = e.location.match(/https?:\/\/[^\s<>"'\)]+/)
     if (m) {
@@ -59,7 +68,6 @@ function extractMeetingInfo(e: any): { meetingUrl: string; platform: 'google_mee
     }
   }
 
-  // 4. Description field
   if (e.description) {
     const matches = e.description.match(/https?:\/\/[^\s<>"'\)]+/g)
     if (matches) {
@@ -76,6 +84,7 @@ function extractMeetingInfo(e: any): { meetingUrl: string; platform: 'google_mee
 export default function CalendarPage() {
   const [events, setEvents] = useState<CalEvent[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [googleToken, setGoogleToken] = useState<string | null>(null)
   const [jobs, setJobs] = useState<Record<string, Job>>({})
   const [manualUrl, setManualUrl] = useState('')
@@ -160,6 +169,7 @@ export default function CalendarPage() {
       setEvents(parsedEvents)
     } catch { /* ignore */ }
     setLoading(false)
+    setRefreshing(false)
   }
 
   async function getUserEmail(): Promise<string> {
@@ -341,34 +351,57 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="p-8 max-w-3xl">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-6 md:p-8 max-w-5xl mx-auto space-y-8">
+      
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/80 pb-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Calendar</h1>
-          <p className="text-muted-foreground text-sm mt-1">Upcoming Google Meet & Zoom events</p>
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-2xl font-bold tracking-tight text-white">
+              Calendar & Schedule
+            </h1>
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              Live Google Sync
+            </span>
+          </div>
+          <p className="text-xs text-zinc-400">
+            Auto-join upcoming Google Meet & Zoom meetings from your calendar
+          </p>
         </div>
-        <Button onClick={() => setCreateOpen(true)} className="gap-2">
-          <Video className="w-4 h-4" />
-          New Meeting
+
+        <Button 
+          onClick={() => setCreateOpen(true)} 
+          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-md shadow-blue-600/25 gap-2 px-4 py-2 rounded-xl self-start sm:self-auto"
+        >
+          <Plus className="w-4 h-4" />
+          <span>New Meeting</span>
         </Button>
       </div>
 
+      {/* New Meeting Modal */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent className="bg-zinc-900 border-zinc-800 text-foreground max-w-md">
+        <DialogContent className="bg-zinc-950 border-zinc-800 text-foreground max-w-lg rounded-2xl shadow-2xl p-6">
           <DialogHeader>
-            <DialogTitle className="text-base font-semibold">Create New Meeting</DialogTitle>
+            <DialogTitle className="text-lg font-bold text-white flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-blue-400" />
+              <span>Create & Schedule Meeting</span>
+            </DialogTitle>
           </DialogHeader>
+
           <div className="space-y-4 mt-2">
+            {/* Meeting Provider Toggle */}
             <div>
-              <label className="text-xs text-zinc-400 mb-1.5 block">Meeting Provider</label>
+              <label className="text-xs font-semibold text-zinc-400 mb-1.5 block uppercase tracking-wider">
+                Meeting Provider
+              </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setNewPlatform('google_meet')}
-                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg border text-xs font-medium transition-all ${
+                  className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border text-xs font-medium transition-all ${
                     newPlatform === 'google_meet'
                       ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-400 font-semibold'
-                      : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                      : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:border-zinc-700'
                   }`}
                 >
                   <span className={`w-2 h-2 rounded-full ${newPlatform === 'google_meet' ? 'bg-emerald-400' : 'bg-zinc-600'}`} />
@@ -377,10 +410,10 @@ export default function CalendarPage() {
                 <button
                   type="button"
                   onClick={() => setNewPlatform('zoom')}
-                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg border text-xs font-medium transition-all ${
+                  className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border text-xs font-medium transition-all ${
                     newPlatform === 'zoom'
                       ? 'bg-blue-500/15 border-blue-500/50 text-blue-400 font-semibold'
-                      : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                      : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:border-zinc-700'
                   }`}
                 >
                   <span className={`w-2 h-2 rounded-full ${newPlatform === 'zoom' ? 'bg-blue-400' : 'bg-zinc-600'}`} />
@@ -389,27 +422,35 @@ export default function CalendarPage() {
               </div>
             </div>
 
+            {/* Title */}
             <div>
-              <label className="text-xs text-zinc-400 mb-1.5 block">Meeting title</label>
-              <Input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Weekly standup" className="bg-zinc-950 border-zinc-700" autoFocus />
+              <label className="text-xs font-semibold text-zinc-400 mb-1.5 block">Meeting Title</label>
+              <Input
+                value={newTitle}
+                onChange={e => setNewTitle(e.target.value)}
+                placeholder="Weekly Sprint Sync / Client Review"
+                className="bg-zinc-900 border-zinc-800 text-xs rounded-xl focus:border-blue-500"
+                autoFocus
+              />
             </div>
 
+            {/* Zoom Link Mode Selector */}
             {newPlatform === 'zoom' && (
-              <div className="space-y-2 p-3 bg-zinc-950/60 border border-zinc-800/80 rounded-lg">
+              <div className="space-y-2 p-3.5 bg-zinc-900/60 border border-zinc-800 rounded-xl">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-zinc-300">Zoom Link Source</span>
-                  <div className="flex text-[11px] bg-zinc-900 border border-zinc-800 rounded p-0.5">
+                  <span className="text-xs font-semibold text-zinc-300">Zoom Link Source</span>
+                  <div className="flex text-xs bg-zinc-950 border border-zinc-800 rounded-lg p-0.5">
                     <button
                       type="button"
                       onClick={() => setZoomMode('auto')}
-                      className={`px-2 py-0.5 rounded ${zoomMode === 'auto' ? 'bg-blue-600 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'}`}
+                      className={`px-2.5 py-1 rounded-md text-[11px] transition-all ${zoomMode === 'auto' ? 'bg-blue-600 text-white font-semibold' : 'text-zinc-400 hover:text-zinc-200'}`}
                     >
-                      ⚡ Auto-generate
+                      ⚡ Auto-Generate via API
                     </button>
                     <button
                       type="button"
                       onClick={() => setZoomMode('custom')}
-                      className={`px-2 py-0.5 rounded ${zoomMode === 'custom' ? 'bg-blue-600 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'}`}
+                      className={`px-2.5 py-1 rounded-md text-[11px] transition-all ${zoomMode === 'custom' ? 'bg-blue-600 text-white font-semibold' : 'text-zinc-400 hover:text-zinc-200'}`}
                     >
                       Paste Link
                     </button>
@@ -417,8 +458,8 @@ export default function CalendarPage() {
                 </div>
 
                 {zoomMode === 'auto' ? (
-                  <p className="text-[11px] text-zinc-400">
-                    A new Zoom meeting ID will be automatically generated via Zoom API when created.
+                  <p className="text-[11px] text-zinc-400 leading-relaxed">
+                    MeetBot will automatically provision a new Zoom meeting ID with passcode via Server-to-Server OAuth.
                   </p>
                 ) : (
                   <div>
@@ -426,36 +467,55 @@ export default function CalendarPage() {
                       value={newZoomUrl}
                       onChange={e => setNewZoomUrl(e.target.value)}
                       placeholder="https://zoom.us/j/1234567890?pwd=..."
-                      className="bg-zinc-900 border-zinc-700 font-mono text-xs mt-1.5"
+                      className="bg-zinc-950 border-zinc-800 font-mono text-xs mt-1.5 rounded-lg"
                     />
-                    <p className="text-[10px] text-zinc-500 mt-1">Paste your personal room or scheduled Zoom link</p>
+                    <p className="text-[10px] text-zinc-500 mt-1">Paste your Zoom Personal Meeting link</p>
                   </div>
                 )}
               </div>
             )}
 
+            {/* Date & Time */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs text-zinc-400 mb-1.5 block">Date</label>
-                <Input type="date" value={newDate} onChange={e => setNewDate(e.target.value)} className="bg-zinc-950 border-zinc-700" />
+                <label className="text-xs font-semibold text-zinc-400 mb-1.5 block">Date</label>
+                <Input type="date" value={newDate} onChange={e => setNewDate(e.target.value)} className="bg-zinc-900 border-zinc-800 text-xs rounded-xl" />
               </div>
               <div>
-                <label className="text-xs text-zinc-400 mb-1.5 block">Time</label>
-                <Input type="time" value={newTime} onChange={e => setNewTime(e.target.value)} className="bg-zinc-950 border-zinc-700" />
+                <label className="text-xs font-semibold text-zinc-400 mb-1.5 block">Time</label>
+                <Input type="time" value={newTime} onChange={e => setNewTime(e.target.value)} className="bg-zinc-900 border-zinc-800 text-xs rounded-xl" />
               </div>
             </div>
+
+            {/* Duration */}
             <div>
-              <label className="text-xs text-zinc-400 mb-1.5 block">Duration (minutes)</label>
-              <Input type="number" value={newDuration} onChange={e => setNewDuration(e.target.value)} min="15" max="480" step="15" className="bg-zinc-950 border-zinc-700" />
+              <label className="text-xs font-semibold text-zinc-400 mb-1.5 block">Duration (minutes)</label>
+              <Input type="number" value={newDuration} onChange={e => setNewDuration(e.target.value)} min="15" max="480" step="15" className="bg-zinc-900 border-zinc-800 text-xs rounded-xl" />
             </div>
+
+            {/* Guests */}
             <div>
-              <label className="text-xs text-zinc-400 mb-1.5 block">Guests <span className="text-zinc-600">(optional, comma-separated)</span></label>
-              <Input value={newGuests} onChange={e => setNewGuests(e.target.value)} placeholder="alice@company.com, bob@company.com" className="bg-zinc-950 border-zinc-700 text-xs" />
+              <label className="text-xs font-semibold text-zinc-400 mb-1.5 block">
+                Invite Guests <span className="text-zinc-500 font-normal">(comma-separated)</span>
+              </label>
+              <Input
+                value={newGuests}
+                onChange={e => setNewGuests(e.target.value)}
+                placeholder="sarah@acme.com, david@company.com"
+                className="bg-zinc-900 border-zinc-800 text-xs rounded-xl"
+              />
             </div>
-            {createError && <p className="text-xs text-red-400 bg-red-950/30 border border-red-900/50 rounded px-3 py-2">{createError}</p>}
-            {!googleToken && <p className="text-xs text-yellow-400 bg-yellow-950/30 border border-yellow-900/50 rounded px-3 py-2">Google Calendar access not available. Sign out and sign in again to grant calendar permissions.</p>}
-            <div className="flex gap-3 pt-1">
-              <Button variant="outline" onClick={() => setCreateOpen(false)} className="flex-1 border-zinc-700 hover:bg-zinc-800">Cancel</Button>
+
+            {createError && (
+              <p className="text-xs text-red-400 bg-red-950/30 border border-red-900/50 rounded-xl px-3 py-2">
+                {createError}
+              </p>
+            )}
+
+            <div className="flex gap-3 pt-2">
+              <Button variant="outline" onClick={() => setCreateOpen(false)} className="flex-1 border-zinc-800 hover:bg-zinc-850 rounded-xl text-xs">
+                Cancel
+              </Button>
               <Button
                 onClick={createMeeting}
                 disabled={
@@ -466,74 +526,113 @@ export default function CalendarPage() {
                   !googleToken ||
                   (newPlatform === 'zoom' && zoomMode === 'custom' && !newZoomUrl.trim())
                 }
-                className="flex-1"
+                className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold rounded-xl"
               >
-                {creating ? 'Creating...' : 'Create + Schedule Bot'}
+                {creating ? 'Provisioning...' : 'Create & Schedule Bot'}
               </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 mb-8">
-        <div className="flex items-center gap-2 mb-4">
-          <Plus className="w-4 h-4 text-zinc-400" />
-          <p className="text-sm font-medium">Join or schedule bot for any meeting</p>
+      {/* Quick Bot Launcher / Paste Widget */}
+      <div className="p-5 rounded-2xl border border-zinc-800/80 bg-zinc-950/80 backdrop-blur-xl shadow-xl">
+        <div className="flex items-center gap-2 mb-3">
+          <Zap className="w-4 h-4 text-blue-400" />
+          <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-300">
+            Instant Bot Launchpad
+          </h2>
         </div>
-        <div className="flex gap-3">
+        <p className="text-xs text-zinc-400 mb-3">
+          Have an active Google Meet or Zoom URL right now? Paste it below to send MeetBot immediately.
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-2.5">
           <Input
             value={manualUrl}
             onChange={e => setManualUrl(e.target.value)}
-            placeholder="https://zoom.us/j/... or https://meet.google.com/..."
-            className="font-mono text-xs bg-zinc-950 border-zinc-700 flex-1"
+            placeholder="https://meet.google.com/abc-defg-hij or https://zoom.us/j/..."
+            className="font-mono text-xs bg-zinc-900 border-zinc-800 rounded-xl flex-1 focus:border-blue-500"
           />
           <Input
             value={manualTitle}
             onChange={e => setManualTitle(e.target.value)}
-            placeholder="Title (optional)"
-            className="bg-zinc-950 border-zinc-700 w-36"
+            placeholder="Topic (optional)"
+            className="bg-zinc-900 border-zinc-800 text-xs rounded-xl w-full sm:w-44"
           />
-          <Button onClick={submitManual} disabled={!manualUrl || submitting} size="sm" className="shrink-0">
-            {submitting ? 'Sending...' : 'Send Bot'}
+          <Button
+            onClick={submitManual}
+            disabled={!manualUrl || submitting}
+            className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-4 rounded-xl shrink-0"
+          >
+            {submitting ? 'Launching...' : 'Send Bot'}
           </Button>
         </div>
+
         {jobs.manual && (
-          <div className="mt-3 flex items-center gap-2">
+          <div className="mt-3 flex items-center gap-2 text-xs">
             <StatusBadge status={jobs.manual.status} />
-            <span className="text-xs text-zinc-500 font-mono">{jobs.manual.jobId}</span>
+            <span className="text-zinc-500 font-mono text-[11px]">Job ID: {jobs.manual.jobId}</span>
           </div>
         )}
       </div>
 
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider">Next 7 days</h2>
-          {googleToken && <button onClick={() => fetchEvents(googleToken)} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">Refresh</button>}
+      {/* Upcoming 7-Days Calendar Timeline */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CalendarIcon className="w-4 h-4 text-blue-400" />
+            <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+              Upcoming Calendar Meetings (Next 7 Days)
+            </h2>
+          </div>
+
+          {googleToken && (
+            <button
+              onClick={() => { setRefreshing(true); fetchEvents(googleToken); }}
+              className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+              <span>Refresh</span>
+            </button>
+          )}
         </div>
 
         {loading ? (
-          <div className="text-center py-12 text-zinc-600 text-sm">Loading calendar...</div>
+          <div className="text-center py-16 text-zinc-500 text-xs">
+            Syncing calendar events...
+          </div>
         ) : !googleToken ? (
-          <div className="text-center py-12">
-            <Calendar className="w-10 h-10 mx-auto mb-3 text-zinc-700" />
-            <p className="text-sm text-zinc-400">Calendar access not available</p>
-            <p className="text-xs text-zinc-600 mt-1">Sign out and sign in again to grant Google Calendar permissions</p>
+          <div className="text-center py-16 rounded-2xl border border-zinc-800 bg-zinc-950/60 p-8">
+            <CalendarIcon className="w-10 h-10 text-zinc-700 mx-auto mb-3" />
+            <h3 className="text-sm font-bold text-white mb-1">Calendar access required</h3>
+            <p className="text-xs text-zinc-500 max-w-sm mx-auto mb-4">
+              Sign out and sign in with Google to grant calendar read and schedule permissions.
+            </p>
           </div>
         ) : events.length === 0 ? (
-          <div className="text-center py-12">
-            <Calendar className="w-10 h-10 mx-auto mb-3 text-zinc-700" />
-            <p className="text-sm text-zinc-400">No upcoming meetings found</p>
+          <div className="text-center py-16 rounded-2xl border border-zinc-800 bg-zinc-950/60 p-8">
+            <CalendarIcon className="w-10 h-10 text-zinc-700 mx-auto mb-3" />
+            <h3 className="text-sm font-bold text-white mb-1">No upcoming meetings found</h3>
+            <p className="text-xs text-zinc-500 max-w-sm mx-auto">
+              Create a new Google Meet or Zoom meeting above to schedule the bot.
+            </p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {events.map(event => {
               const job = jobs[event.id]
               const isZoom = event.platform === 'zoom'
               return (
-                <div key={event.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex items-center justify-between gap-4">
+                <div
+                  key={event.id}
+                  className="saas-glow-card rounded-2xl p-5 border border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                >
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium truncate">{event.summary || 'No title'}</p>
+                    <div className="flex flex-wrap items-center gap-2.5 mb-1">
+                      <h3 className="text-sm font-bold text-white truncate">
+                        {event.summary || 'Untitled Event'}
+                      </h3>
                       <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                         isZoom
                           ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
@@ -542,18 +641,45 @@ export default function CalendarPage() {
                         {isZoom ? 'Zoom' : 'Google Meet'}
                       </span>
                     </div>
-                    <p className="text-xs text-zinc-500 mt-0.5">{format(new Date(event.start.dateTime || Date.now()), 'MMM d · h:mm a')}</p>
-                    <a href={event.meetingUrl} target="_blank" rel="noopener noreferrer"
-                      className="text-xs text-blue-400 hover:text-blue-300 font-mono flex items-center gap-1 mt-1 truncate max-w-md">
-                      {event.meetingUrl.replace('https://', '')}
+
+                    <div className="flex flex-wrap items-center gap-4 text-xs text-zinc-400 mb-2">
+                      <span className="flex items-center gap-1 font-mono">
+                        <Clock className="w-3.5 h-3.5 text-zinc-500" />
+                        {format(new Date(event.start.dateTime || Date.now()), 'EEEE, dd MMM · HH:mm')}
+                      </span>
+                      {event.attendees && event.attendees.length > 0 && (
+                        <span className="flex items-center gap-1">
+                          <Users className="w-3.5 h-3.5 text-zinc-500" />
+                          {event.attendees.length} guest{event.attendees.length > 1 ? 's' : ''}
+                        </span>
+                      )}
+                    </div>
+
+                    <a
+                      href={event.meetingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-blue-400 hover:text-blue-300 font-mono flex items-center gap-1 truncate max-w-md transition-colors"
+                    >
                       <ExternalLink className="w-3 h-3 shrink-0" />
+                      <span>{event.meetingUrl.replace('https://', '')}</span>
                     </a>
                   </div>
+
                   <div className="shrink-0">
-                    {job ? <StatusBadge status={job.status} /> : (
-                      <Button size="sm" variant="outline" onClick={() => scheduleBot(event)} className="gap-2 border-zinc-700 hover:bg-zinc-800">
-                        <Bot className="w-3.5 h-3.5" />
-                        Schedule Bot
+                    {job ? (
+                      <div className="flex items-center gap-2">
+                        <StatusBadge status={job.status} />
+                        <span className="text-[10px] font-mono text-zinc-500">Scheduled</span>
+                      </div>
+                    ) : (
+                      <Button
+                        size="sm"
+                        onClick={() => scheduleBot(event)}
+                        className="bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-200 text-xs font-semibold gap-1.5 rounded-xl shadow-sm transition-all"
+                      >
+                        <Bot className="w-3.5 h-3.5 text-blue-400" />
+                        <span>Schedule Bot</span>
                       </Button>
                     )}
                   </div>
