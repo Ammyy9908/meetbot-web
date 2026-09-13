@@ -83,6 +83,8 @@ export default function CalendarPage() {
   const [submitting, setSubmitting] = useState(false)
 
   const [createOpen, setCreateOpen] = useState(false)
+  const [newPlatform, setNewPlatform] = useState<'google_meet' | 'zoom'>('google_meet')
+  const [newZoomUrl, setNewZoomUrl] = useState('')
   const [newTitle, setNewTitle] = useState('')
   const [newDate, setNewDate] = useState('')
   const [newTime, setNewTime] = useState('')
@@ -169,6 +171,11 @@ export default function CalendarPage() {
 
   async function createMeeting() {
     if (!newTitle || !newDate || !newTime) return
+    if (newPlatform === 'zoom' && !newZoomUrl.trim()) {
+      setCreateError('Please enter a valid Zoom meeting link')
+      return
+    }
+
     setCreating(true)
     setCreateError('')
     try {
@@ -182,13 +189,21 @@ export default function CalendarPage() {
         summary: newTitle,
         start: { dateTime: startDt.toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone },
         end:   { dateTime: endDt.toISOString(),   timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone },
-        conferenceData: {
-          createRequest: { requestId: crypto.randomUUID(), conferenceSolutionKey: { type: 'hangoutsMeet' } },
-        },
       }
+
+      if (newPlatform === 'google_meet') {
+        body.conferenceData = {
+          createRequest: { requestId: crypto.randomUUID(), conferenceSolutionKey: { type: 'hangoutsMeet' } },
+        }
+      } else if (newPlatform === 'zoom') {
+        body.location = newZoomUrl.trim()
+        body.description = `Zoom Meeting Link: ${newZoomUrl.trim()}\n\nRecorded and summarized by MeetBot.`
+      }
+
       if (newGuests.trim()) {
         body.attendees = newGuests.split(',').map(e => ({ email: e.trim() })).filter((a: { email: string }) => a.email)
       }
+
       let res = await fetch(
         'https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1',
         {
@@ -222,22 +237,24 @@ export default function CalendarPage() {
       const event = await res.json()
       setCreateOpen(false)
       setNewTitle('')
+      setNewZoomUrl('')
       setNewGuests('')
       await fetchEvents(activeToken)
 
-      // Schedule bot directly at the meeting start time
-      if (event.hangoutLink) {
+      // Determine meeting URL to schedule bot
+      const targetMeetUrl = newPlatform === 'zoom' ? newZoomUrl.trim() : event.hangoutLink
+      if (targetMeetUrl) {
         const email = await getUserEmail()
         const attendeeEmails = (event.attendees || []).map((a: { email: string }) => a.email).filter(Boolean)
         await fetch(`${BOT_API}/bot/schedule`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            meetUrl: event.hangoutLink,
-            title: event.summary,
+            meetUrl: targetMeetUrl,
+            title: event.summary || newTitle,
             organizerEmail: email,
             attendeeEmails,
-            startAt: event.start.dateTime,
+            startAt: event.start?.dateTime || startDt.toISOString(),
             eventId: event.id,
           }),
         })
@@ -312,13 +329,57 @@ export default function CalendarPage() {
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="bg-zinc-900 border-zinc-800 text-foreground max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-base font-semibold">Create Google Meet</DialogTitle>
+            <DialogTitle className="text-base font-semibold">Create New Meeting</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-2">
+            <div>
+              <label className="text-xs text-zinc-400 mb-1.5 block">Meeting Provider</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setNewPlatform('google_meet')}
+                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg border text-xs font-medium transition-all ${
+                    newPlatform === 'google_meet'
+                      ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-400 font-semibold'
+                      : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${newPlatform === 'google_meet' ? 'bg-emerald-400' : 'bg-zinc-600'}`} />
+                  Google Meet
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setNewPlatform('zoom')}
+                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg border text-xs font-medium transition-all ${
+                    newPlatform === 'zoom'
+                      ? 'bg-blue-500/15 border-blue-500/50 text-blue-400 font-semibold'
+                      : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${newPlatform === 'zoom' ? 'bg-blue-400' : 'bg-zinc-600'}`} />
+                  Zoom Meeting
+                </button>
+              </div>
+            </div>
+
             <div>
               <label className="text-xs text-zinc-400 mb-1.5 block">Meeting title</label>
               <Input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Weekly standup" className="bg-zinc-950 border-zinc-700" autoFocus />
             </div>
+
+            {newPlatform === 'zoom' && (
+              <div>
+                <label className="text-xs text-zinc-400 mb-1.5 block">Zoom Meeting Link</label>
+                <Input
+                  value={newZoomUrl}
+                  onChange={e => setNewZoomUrl(e.target.value)}
+                  placeholder="https://zoom.us/j/1234567890?pwd=..."
+                  className="bg-zinc-950 border-zinc-700 font-mono text-xs"
+                />
+                <p className="text-[11px] text-zinc-500 mt-1">Paste your Zoom meeting or personal room link</p>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs text-zinc-400 mb-1.5 block">Date</label>
@@ -341,7 +402,7 @@ export default function CalendarPage() {
             {!googleToken && <p className="text-xs text-yellow-400 bg-yellow-950/30 border border-yellow-900/50 rounded px-3 py-2">Google Calendar access not available. Sign out and sign in again to grant calendar permissions.</p>}
             <div className="flex gap-3 pt-1">
               <Button variant="outline" onClick={() => setCreateOpen(false)} className="flex-1 border-zinc-700 hover:bg-zinc-800">Cancel</Button>
-              <Button onClick={createMeeting} disabled={!newTitle || !newDate || !newTime || creating || !googleToken} className="flex-1">
+              <Button onClick={createMeeting} disabled={!newTitle || !newDate || !newTime || creating || !googleToken || (newPlatform === 'zoom' && !newZoomUrl.trim())} className="flex-1">
                 {creating ? 'Creating...' : 'Create + Schedule Bot'}
               </Button>
             </div>
