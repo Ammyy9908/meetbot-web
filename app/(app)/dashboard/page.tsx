@@ -3,6 +3,7 @@ import { SummaryView } from '@/components/SummaryView'
 import { StatusBadge } from '@/components/StatusBadge'
 import Link from 'next/link'
 import { format } from 'date-fns'
+import { GoogleMeetIcon, ZoomIcon } from '@/components/icons'
 import { 
   Video, 
   Clock, 
@@ -189,12 +190,13 @@ export default async function DashboardPage() {
                       <span className="font-semibold text-sm text-white truncate">
                         {m.title || 'Untitled Meeting'}
                       </span>
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 ${
                         isZoom
                           ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
                           : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                       }`}>
-                        {isZoom ? 'Zoom' : 'Google Meet'}
+                        {isZoom ? <ZoomIcon className="w-3 h-3 shrink-0" /> : <GoogleMeetIcon className="w-3 h-3 shrink-0" />}
+                        <span>{isZoom ? 'Zoom' : 'Google Meet'}</span>
                       </span>
                     </div>
                     <p className="text-xs text-zinc-400 font-mono truncate max-w-md">
@@ -256,12 +258,13 @@ export default async function DashboardPage() {
                         <h3 className="text-base font-bold text-white">
                           {m.title || 'Untitled Meeting'}
                         </h3>
-                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 ${
                           isZoom
                             ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
                             : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                         }`}>
-                          {isZoom ? 'Zoom' : 'Google Meet'}
+                          {isZoom ? <ZoomIcon className="w-3 h-3 shrink-0" /> : <GoogleMeetIcon className="w-3 h-3 shrink-0" />}
+                          <span>{isZoom ? 'Zoom' : 'Google Meet'}</span>
                         </span>
                         <StatusBadge status={m.status} />
                       </div>

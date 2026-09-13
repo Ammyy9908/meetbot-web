@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { StatusBadge } from '@/components/StatusBadge'
 import Link from 'next/link'
 import { format } from 'date-fns'
+import { GoogleMeetIcon, ZoomIcon } from '@/components/icons'
 import { 
   Search, 
   Video, 
@@ -79,19 +80,21 @@ export function MeetingsClient({ initialMeetings }: { initialMeetings: MeetingIt
             </button>
             <button
               onClick={() => setPlatformFilter('zoom')}
-              className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
-                platformFilter === 'zoom' ? 'bg-blue-600 text-white' : 'text-zinc-400 hover:text-zinc-200'
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                platformFilter === 'zoom' ? 'bg-blue-600 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              Zoom
+              <ZoomIcon className="w-3.5 h-3.5" />
+              <span>Zoom</span>
             </button>
             <button
               onClick={() => setPlatformFilter('google_meet')}
-              className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
-                platformFilter === 'google_meet' ? 'bg-emerald-500 text-zinc-950 font-semibold' : 'text-zinc-400 hover:text-zinc-200'
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                platformFilter === 'google_meet' ? 'bg-zinc-800 border border-emerald-500/50 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              Meet
+              <GoogleMeetIcon className="w-3.5 h-3.5" />
+              <span>Meet</span>
             </button>
           </div>
 
@@ -136,12 +139,13 @@ export function MeetingsClient({ initialMeetings }: { initialMeetings: MeetingIt
                         {m.title || 'Untitled Meeting'}
                       </Link>
 
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 ${
                         isZoom
                           ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
                           : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                       }`}>
-                        {isZoom ? 'Zoom' : 'Google Meet'}
+                        {isZoom ? <ZoomIcon className="w-3 h-3 shrink-0" /> : <GoogleMeetIcon className="w-3 h-3 shrink-0" />}
+                        <span>{isZoom ? 'Zoom' : 'Google Meet'}</span>
                       </span>
 
                       <StatusBadge status={m.status} />

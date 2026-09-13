@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { StatusBadge } from '@/components/StatusBadge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { format, addMinutes } from 'date-fns'
+import { GoogleMeetIcon, ZoomIcon } from '@/components/icons'
 import { 
   Calendar as CalendarIcon, 
   Bot, 
@@ -386,35 +387,41 @@ export default function CalendarPage() {
           </DialogHeader>
 
           <div className="space-y-4 mt-2">
-            {/* Meeting Provider Toggle */}
+            {/* Meeting Provider Toggle — Redesigned Rounded Pill Switch */}
             <div>
-              <label className="text-xs font-semibold text-zinc-400 mb-1.5 block uppercase tracking-wider">
-                Meeting Provider
+              <label className="text-xs font-semibold text-zinc-400 mb-2 block uppercase tracking-wider">
+                Select Platform
               </label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="p-1 bg-zinc-950 border border-zinc-800 rounded-full flex gap-1 shadow-inner">
                 <button
                   type="button"
                   onClick={() => setNewPlatform('google_meet')}
-                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg border text-xs font-medium transition-all ${
+                  className={`flex-1 flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-full text-xs font-semibold transition-all duration-200 ${
                     newPlatform === 'google_meet'
-                      ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-400 font-semibold'
-                      : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                      ? 'bg-zinc-900 border border-emerald-500/50 text-white shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500/30'
+                      : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50 border border-transparent'
                   }`}
                 >
-                  <span className={`w-2 h-2 rounded-full ${newPlatform === 'google_meet' ? 'bg-emerald-400' : 'bg-zinc-600'}`} />
-                  Google Meet
+                  <GoogleMeetIcon className="w-4 h-4 shrink-0" />
+                  <span>Google Meet</span>
+                  {newPlatform === 'google_meet' && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  )}
                 </button>
                 <button
                   type="button"
                   onClick={() => setNewPlatform('zoom')}
-                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg border text-xs font-medium transition-all ${
+                  className={`flex-1 flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-full text-xs font-semibold transition-all duration-200 ${
                     newPlatform === 'zoom'
-                      ? 'bg-blue-500/15 border-blue-500/50 text-blue-400 font-semibold'
-                      : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                      ? 'bg-zinc-900 border border-blue-500/50 text-white shadow-lg shadow-blue-500/10 ring-1 ring-blue-500/30'
+                      : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50 border border-transparent'
                   }`}
                 >
-                  <span className={`w-2 h-2 rounded-full ${newPlatform === 'zoom' ? 'bg-blue-400' : 'bg-zinc-600'}`} />
-                  Zoom Meeting
+                  <ZoomIcon className="w-4 h-4 shrink-0" />
+                  <span>Zoom</span>
+                  {newPlatform === 'zoom' && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                  )}
                 </button>
               </div>
             </div>
@@ -638,12 +645,13 @@ export default function CalendarPage() {
                       <h3 className="text-sm font-bold text-white truncate">
                         {event.summary || 'Untitled Event'}
                       </h3>
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 ${
                         isZoom
                           ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
                           : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                       }`}>
-                        {isZoom ? 'Zoom' : 'Google Meet'}
+                        {isZoom ? <ZoomIcon className="w-3 h-3 shrink-0" /> : <GoogleMeetIcon className="w-3 h-3 shrink-0" />}
+                        <span>{isZoom ? 'Zoom' : 'Google Meet'}</span>
                       </span>
                     </div>
 
