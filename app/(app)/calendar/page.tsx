@@ -157,8 +157,12 @@ export default function CalendarPage() {
         }
       }
       if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.error?.message || 'Failed to create event')
+        const err = await res.json().catch(() => ({}))
+        const msg = err.error?.message || 'Failed to create event'
+        if (res.status === 401 || msg.toLowerCase().includes('invalid authentication credentials')) {
+          throw new Error('Google Calendar access expired. Please sign out and sign in with Google to refresh permissions.')
+        }
+        throw new Error(msg)
       }
       const event = await res.json()
       setCreateOpen(false)

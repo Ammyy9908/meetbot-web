@@ -17,8 +17,20 @@ export function Sidebar() {
   const router = useRouter()
 
   async function signOut() {
-    await fetch(`${AUTH_URL}/auth/logout`, { method: 'POST', credentials: 'include' })
-    router.push('/')
+    try {
+      await fetch(`${AUTH_URL}/auth/logout`, { method: 'POST', credentials: 'include' })
+    } catch {}
+    // Clear cookies on all possible client domains
+    const cookieDomains = ['.meetbot.ink', 'www.meetbot.ink', 'api.meetbot.ink', '']
+    cookieDomains.forEach(d => {
+      const domainAttr = d ? `; domain=${d}` : ''
+      document.cookie = `meetbot_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT${domainAttr}`
+    })
+    try {
+      localStorage.clear()
+      sessionStorage.clear()
+    } catch {}
+    window.location.href = '/'
   }
 
   return (
