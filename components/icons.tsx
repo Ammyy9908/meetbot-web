@@ -1,11 +1,12 @@
 export function GoogleMeetIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M13 7.5V16.5L18.5 20.5V3.5L13 7.5Z" fill="#00832D"/>
-      <path d="M3.5 6.5C3.5 5.39543 4.39543 4.5 5.5 4.5H13V19.5H5.5C4.39543 19.5 3.5 18.6046 3.5 17.5V6.5Z" fill="#00AC47"/>
-      <path d="M13 4.5H17.5C18.6046 4.5 19.5 5.39543 19.5 6.5V12H13V4.5Z" fill="#2684FC"/>
-      <path d="M19.5 12V17.5C19.5 18.6046 18.6046 19.5 17.5 19.5H13V12H19.5Z" fill="#0066DA"/>
-      <path d="M18.5 8.5L21.5 6.2C21.8 5.9 22.3 6.1 22.3 6.5V17.5C22.3 17.9 21.8 18.1 21.5 17.8L18.5 15.5V8.5Z" fill="#FFBA00"/>
+    <svg className={className} viewBox="0 0 87.5 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#00832d" d="M49.5 36l8.53 9.75 11.47 7.33 2-17.02-2-16.64-11.69 6.44z"/>
+      <path fill="#0066da" d="M0 51.5V66c0 3.315 2.685 6 6 6h14.5l3-10.96-3-9.54-9.95-3z"/>
+      <path fill="#e94235" d="M20.5 0L0 20.5l10.55 3 9.95-3 2.95-9.41z"/>
+      <path fill="#2684fc" d="M20.5 20.5H0v31h20.5z"/>
+      <path fill="#00ac47" d="M82.6 8.68L69.5 19.42v33.66l13.16 10.79c1.97 1.54 4.85.135 4.85-2.37V11c0-2.535-2.945-3.925-4.91-2.32zM49.5 36v15.5h-29V72h43c3.315 0 6-2.685 6-6V53.08z"/>
+      <path fill="#ffba00" d="M63.5 0h-43v20.5h29V36l20-16.57V6c0-3.315-2.685-6-6-6z"/>
     </svg>
   )
 }
@@ -13,9 +14,9 @@ export function GoogleMeetIcon({ className = "w-5 h-5" }: { className?: string }
 export function ZoomIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="24" height="24" rx="6" fill="#2D8CFF"/>
-      <path d="M5.5 9C5.5 8.17157 6.17157 7.5 7 7.5H13C13.8284 7.5 14.5 8.17157 14.5 9V15C14.5 15.8284 13.8284 16.5 13 16.5H7C6.17157 16.5 5.5 15.8284 5.5 15V9Z" fill="white"/>
-      <path d="M15.5 10.3L18.6 7.9C18.9 7.7 19.5 7.9 19.5 8.4V15.6C19.5 16.1 18.9 16.3 18.6 16.1L15.5 13.7V10.3Z" fill="white"/>
+      <rect width="24" height="24" rx="5.5" fill="#0B5CFF"/>
+      <path fill="#FFFFFF" d="M4.5 8.5C4.5 7.4 5.4 6.5 6.5 6.5H13C14.1 6.5 15 7.4 15 8.5V15.5C15 16.6 14.1 17.5 13 17.5H6.5C5.4 17.5 4.5 16.6 4.5 15.5V8.5Z"/>
+      <path fill="#FFFFFF" d="M16 10.38L19.45 7.91C19.78 7.67 20.25 7.91 20.25 8.32V15.68C20.25 16.09 19.78 16.33 19.45 16.09L16 13.62V10.38Z"/>
     </svg>
   )
 }
