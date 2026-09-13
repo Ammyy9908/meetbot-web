@@ -67,7 +67,8 @@ export default function CalendarPage() {
   async function fetchEvents(token: string) {
     setLoading(true)
     try {
-      const res = await fetch(
+      let activeToken = token
+      let res = await fetch(
         'https://www.googleapis.com/calendar/v3/calendars/primary/events?' +
         new URLSearchParams({
           timeMin: new Date().toISOString(),
@@ -76,8 +77,26 @@ export default function CalendarPage() {
           orderBy: 'startTime',
           maxResults: '20',
         }),
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${activeToken}` } }
       )
+      if (res.status === 401) {
+        const fresh = await getGoogleToken()
+        if (fresh) {
+          activeToken = fresh
+          setGoogleToken(fresh)
+          res = await fetch(
+            'https://www.googleapis.com/calendar/v3/calendars/primary/events?' +
+            new URLSearchParams({
+              timeMin: new Date().toISOString(),
+              timeMax: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+              singleEvents: 'true',
+              orderBy: 'startTime',
+              maxResults: '20',
+            }),
+            { headers: { Authorization: `Bearer ${activeToken}` } }
+          )
+        }
+      }
       const data = await res.json()
       setEvents((data.items || []).filter((e: CalEvent) => e.hangoutLink))
     } catch { /* ignore */ }
@@ -93,10 +112,14 @@ export default function CalendarPage() {
   }
 
   async function createMeeting() {
-    if (!newTitle || !newDate || !newTime || !googleToken) return
+    if (!newTitle || !newDate || !newTime) return
     setCreating(true)
     setCreateError('')
     try {
+      const activeToken = await getGoogleToken() || googleToken
+      if (!activeToken) throw new Error('No Google token available. Please sign in again.')
+      setGoogleToken(activeToken)
+
       const startDt = new Date(`${newDate}T${newTime}:00`)
       const endDt = addMinutes(startDt, parseInt(newDuration))
       const body: Record<string, unknown> = {
@@ -110,14 +133,28 @@ export default function CalendarPage() {
       if (newGuests.trim()) {
         body.attendees = newGuests.split(',').map(e => ({ email: e.trim() })).filter((a: { email: string }) => a.email)
       }
-      const res = await fetch(
+      let res = await fetch(
         'https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1',
         {
           method: 'POST',
-          headers: { Authorization: `Bearer ${googleToken}`, 'Content-Type': 'application/json' },
+          headers: { Authorization: `Bearer ${activeToken}`, 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         }
       )
+      if (res.status === 401) {
+        const fresh = await getGoogleToken()
+        if (fresh) {
+          setGoogleToken(fresh)
+          res = await fetch(
+            'https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1',
+            {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${fresh}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify(body),
+            }
+          )
+        }
+      }
       if (!res.ok) {
         const err = await res.json()
         throw new Error(err.error?.message || 'Failed to create event')
@@ -126,7 +163,7 @@ export default function CalendarPage() {
       setCreateOpen(false)
       setNewTitle('')
       setNewGuests('')
-      await fetchEvents(googleToken)
+      await fetchEvents(activeToken)
 
       // Schedule bot directly at the meeting start time
       if (event.hangoutLink) {
