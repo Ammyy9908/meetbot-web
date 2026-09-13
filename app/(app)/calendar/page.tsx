@@ -456,7 +456,18 @@ export default function CalendarPage() {
             {!googleToken && <p className="text-xs text-yellow-400 bg-yellow-950/30 border border-yellow-900/50 rounded px-3 py-2">Google Calendar access not available. Sign out and sign in again to grant calendar permissions.</p>}
             <div className="flex gap-3 pt-1">
               <Button variant="outline" onClick={() => setCreateOpen(false)} className="flex-1 border-zinc-700 hover:bg-zinc-800">Cancel</Button>
-              <Button onClick={createMeeting} disabled={!newTitle || !newDate || !newTime || creating || !googleToken || (newPlatform === 'zoom' && !newZoomUrl.trim())} className="flex-1">
+              <Button
+                onClick={createMeeting}
+                disabled={
+                  !newTitle ||
+                  !newDate ||
+                  !newTime ||
+                  creating ||
+                  !googleToken ||
+                  (newPlatform === 'zoom' && zoomMode === 'custom' && !newZoomUrl.trim())
+                }
+                className="flex-1"
+              >
                 {creating ? 'Creating...' : 'Create + Schedule Bot'}
               </Button>
             </div>
