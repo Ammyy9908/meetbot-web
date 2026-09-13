@@ -191,7 +191,7 @@ export default function CalendarPage() {
       // 1. If Zoom Auto-generate: call Zoom REST API
       if (newPlatform === 'zoom') {
         if (zoomMode === 'auto') {
-          const zoomRes = await fetch(`${BOT_API}/zoom/create-meeting`, {
+          const zoomRes = await fetch(`${BOT_API}/bot/zoom/create-meeting`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
