@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { 
-  Sparkles, 
   CheckCircle2, 
   ListTodo, 
   HelpCircle, 
@@ -11,7 +10,6 @@ import {
   FileText, 
   ChevronDown, 
   ChevronUp,
-  User,
   Calendar,
   Layers
 } from 'lucide-react'
@@ -51,19 +49,14 @@ export function SummaryView({ summary }: { summary: Summary }) {
       
       {/* Executive Summary / TL;DR Card */}
       {summary.tldr && (
-        <div className="rounded-2xl bg-gradient-to-br from-blue-950/40 via-zinc-900/60 to-zinc-900/30 border border-blue-500/25 p-5 relative overflow-hidden shadow-lg shadow-blue-500/5">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center">
-                <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-              </div>
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-400">
-                Executive Overview & What Happened
-              </span>
-            </div>
+        <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/15 p-4 relative overflow-hidden">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
+              TL;DR
+            </span>
             <button
               onClick={() => copyText(summary.tldr, 'tldr')}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-[11px] font-medium text-zinc-300 transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-800 hover:bg-zinc-700 text-[11px] font-medium text-zinc-300 transition-colors"
             >
               {copiedSection === 'tldr' ? (
                 <>
@@ -79,7 +72,7 @@ export function SummaryView({ summary }: { summary: Summary }) {
             </button>
           </div>
 
-          <p className="text-sm text-zinc-200 leading-relaxed whitespace-pre-line font-normal">
+          <p className="text-sm text-zinc-300 leading-relaxed whitespace-pre-line font-normal">
             {summary.tldr}
           </p>
         </div>
@@ -88,16 +81,16 @@ export function SummaryView({ summary }: { summary: Summary }) {
       {/* Key Discussion Points */}
       {summary.key_discussion_points && summary.key_discussion_points.length > 0 && (
         <div>
-          <div className="flex items-center gap-2 mb-3">
-            <Layers className="w-4 h-4 text-emerald-400" />
-            <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+          <div className="flex items-center gap-2 mb-2.5">
+            <Layers className="w-4 h-4 text-zinc-400" />
+            <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
               Key Discussion Points
             </span>
           </div>
 
-          <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/50 divide-y divide-zinc-800/60 overflow-hidden">
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 divide-y divide-zinc-800 overflow-hidden">
             {summary.key_discussion_points.map((pt, i) => (
-              <div key={i} className="flex items-start gap-3 p-3.5 hover:bg-zinc-850/40 transition-colors">
+              <div key={i} className="flex items-start gap-3 p-3 hover:bg-zinc-800/30 transition-colors">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 shrink-0" />
                 <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
                   {pt}
@@ -111,10 +104,10 @@ export function SummaryView({ summary }: { summary: Summary }) {
       {/* Key Decisions */}
       {summary.decisions && summary.decisions.length > 0 && (
         <div>
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-2.5">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-blue-400" />
-              <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                 Key Decisions ({summary.decisions.length})
               </span>
             </div>
@@ -123,17 +116,17 @@ export function SummaryView({ summary }: { summary: Summary }) {
               className="flex items-center gap-1.5 px-2 py-0.5 rounded-md hover:bg-zinc-800 text-[11px] text-zinc-400 hover:text-zinc-200 transition-colors"
             >
               {copiedSection === 'decisions' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-              <span>{copiedSection === 'decisions' ? 'Copied' : 'Copy Decisions'}</span>
+              <span>{copiedSection === 'decisions' ? 'Copied' : 'Copy'}</span>
             </button>
           </div>
 
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {summary.decisions.map((decision, i) => (
               <div
                 key={i}
-                className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3.5 flex items-start gap-3 hover:border-zinc-700 transition-colors"
+                className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3 flex items-start gap-3 hover:border-zinc-700 transition-colors"
               >
-                <span className="px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-blue-400 font-bold text-xs shrink-0 font-mono">
+                <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-xs shrink-0 font-mono">
                   {String(i + 1).padStart(2, '0')}
                 </span>
                 <p className="text-xs sm:text-sm text-zinc-200 font-medium leading-relaxed">
@@ -148,30 +141,30 @@ export function SummaryView({ summary }: { summary: Summary }) {
       {/* Action Items */}
       {actionItems.length > 0 && (
         <div>
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-2.5">
             <div className="flex items-center gap-2">
-              <ListTodo className="w-4 h-4 text-yellow-400" />
-              <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                Action Items & Ownership ({actionItems.length})
+              <ListTodo className="w-4 h-4 text-zinc-400" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                Action Items ({actionItems.length})
               </span>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/50 overflow-hidden">
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 overflow-hidden">
             {/* Table Header */}
-            <div className="grid grid-cols-12 gap-3 px-4 py-2.5 bg-zinc-950/60 border-b border-zinc-800 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+            <div className="grid grid-cols-12 gap-3 px-4 py-2 bg-zinc-950 border-b border-zinc-800 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
               <div className="col-span-4 sm:col-span-3">Owner</div>
-              <div className="col-span-8 sm:col-span-7">Action Item</div>
-              <div className="hidden sm:block sm:col-span-2 text-right">Target</div>
+              <div className="col-span-8 sm:col-span-7">Task</div>
+              <div className="hidden sm:block sm:col-span-2 text-right">Due</div>
             </div>
 
             {/* Table Rows */}
-            <div className="divide-y divide-zinc-800/60">
+            <div className="divide-y divide-zinc-800">
               {actionItems.map((item, i) => (
-                <div key={i} className="grid grid-cols-12 gap-3 px-4 py-3 items-center hover:bg-zinc-800/30 transition-colors text-xs sm:text-sm">
+                <div key={i} className="grid grid-cols-12 gap-3 px-4 py-2.5 items-center hover:bg-zinc-800/30 transition-colors text-xs sm:text-sm">
                   <div className="col-span-4 sm:col-span-3 flex items-center gap-2 min-w-0">
-                    <div className="w-5 h-5 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[10px] text-zinc-300 font-bold shrink-0">
-                      {item.owner ? item.owner.slice(0, 1).toUpperCase() : 'U'}
+                    <div className="w-5 h-5 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] text-zinc-300 font-bold shrink-0">
+                      {item.owner ? item.owner[0].toUpperCase() : 'U'}
                     </div>
                     <span className="font-semibold text-zinc-200 truncate">
                       {item.owner || 'Unassigned'}
@@ -183,8 +176,7 @@ export function SummaryView({ summary }: { summary: Summary }) {
                   </div>
 
                   <div className="hidden sm:flex sm:col-span-2 justify-end">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-800 text-[11px] text-zinc-400 font-medium">
-                      <Calendar className="w-3 h-3 text-zinc-500" />
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-800 text-[11px] text-zinc-400 font-mono">
                       {item.due || 'ASAP'}
                     </span>
                   </div>
@@ -198,16 +190,16 @@ export function SummaryView({ summary }: { summary: Summary }) {
       {/* Parking Lot / Open Questions */}
       {parkingLot.length > 0 && (
         <div>
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-2.5">
             <HelpCircle className="w-4 h-4 text-yellow-400" />
-            <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+            <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
               Parking Lot & Open Questions
             </span>
           </div>
 
-          <div className="rounded-2xl border border-yellow-500/20 bg-yellow-950/10 divide-y divide-yellow-500/15 overflow-hidden">
+          <div className="rounded-xl border border-yellow-500/20 bg-yellow-950/10 divide-y divide-yellow-500/15 overflow-hidden">
             {parkingLot.map((item, i) => (
-              <div key={i} className="flex items-start gap-3 p-3.5">
+              <div key={i} className="flex items-start gap-3 p-3">
                 <span className="text-yellow-400 font-bold">•</span>
                 <p className="text-xs sm:text-sm text-yellow-200/90 leading-relaxed">
                   {item}
@@ -218,22 +210,22 @@ export function SummaryView({ summary }: { summary: Summary }) {
         </div>
       )}
 
-      {/* Raw Transcript Collapsible Accordion */}
+      {/* Raw Transcript Collapsible */}
       {summary.transcript && (
-        <div className="pt-2 border-t border-zinc-800/80">
+        <div className="pt-2 border-t border-zinc-800">
           <button
             onClick={() => setShowTranscript(!showTranscript)}
-            className="flex items-center justify-between w-full p-3 rounded-xl bg-zinc-900/60 hover:bg-zinc-850 border border-zinc-800 text-xs font-semibold text-zinc-400 hover:text-zinc-200 transition-all"
+            className="flex items-center justify-between w-full p-2.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-semibold text-zinc-400 hover:text-zinc-200 transition-all"
           >
             <div className="flex items-center gap-2">
               <FileText className="w-4 h-4 text-zinc-400" />
-              <span>Full Raw Audio Transcript</span>
+              <span>Full Raw Transcript</span>
             </div>
             {showTranscript ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </button>
 
           {showTranscript && (
-            <div className="mt-3 p-4 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-zinc-400 font-mono leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto">
+            <div className="mt-2.5 p-4 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-zinc-400 font-mono leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto">
               {summary.transcript}
             </div>
           )}

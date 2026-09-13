@@ -8,14 +8,13 @@ import {
   Clock, 
   CheckCircle2, 
   ListTodo, 
-  Sparkles, 
   ArrowUpRight, 
   Calendar as CalendarIcon, 
   ExternalLink, 
   Radio, 
   Zap,
   TrendingUp,
-  ShieldAlert
+  FileText
 } from 'lucide-react'
 
 const MEETINGS_URL = process.env.NEXT_PUBLIC_MEETINGS_SERVICE_URL || 'http://localhost:8081'
@@ -68,42 +67,42 @@ export default async function DashboardPage() {
     <div className="p-6 md:p-8 max-w-6xl mx-auto space-y-8">
       
       {/* Dashboard Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/80 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800 pb-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <h1 className="text-2xl font-bold tracking-tight text-white">
-              Executive Dashboard
+              Dashboard
             </h1>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               Live Pipeline
             </span>
           </div>
           <p className="text-xs text-zinc-400">
-            Signed in as <span className="text-zinc-200 font-medium">{user?.email || 'Logged in user'}</span> • Automatic meeting intelligence active
+            Signed in as <span className="text-zinc-200 font-medium">{user?.email || 'Logged in user'}</span>
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <Link
             href="/calendar"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-md shadow-blue-600/20 transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs font-semibold transition-all active:scale-95 shadow-md shadow-emerald-500/10"
           >
             <CalendarIcon className="w-3.5 h-3.5" />
-            <span>Calendar & Schedule</span>
+            <span>Schedule Meeting</span>
           </Link>
         </div>
       </div>
 
-      {/* KPI SaaS Metric Cards */}
+      {/* KPI Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           {
             label: 'Total Transcriptions',
             value: total,
             icon: Video,
-            color: 'text-blue-400',
-            bg: 'bg-blue-500/10',
-            border: 'border-blue-500/20',
+            color: 'text-emerald-400',
+            bg: 'bg-emerald-500/10',
+            border: 'border-emerald-500/20',
             trend: '+12% this month',
           },
           {
@@ -119,18 +118,18 @@ export default async function DashboardPage() {
             label: 'Decisions Captured',
             value: totalDecisions > 0 ? totalDecisions : done * 3,
             icon: CheckCircle2,
-            color: 'text-purple-400',
-            bg: 'bg-purple-500/10',
-            border: 'border-purple-500/20',
+            color: 'text-emerald-400',
+            bg: 'bg-emerald-500/10',
+            border: 'border-emerald-500/20',
             trend: 'Zero context loss',
           },
           {
             label: 'Action Items Assigned',
             value: totalActionItems > 0 ? totalActionItems : done * 4,
             icon: ListTodo,
-            color: 'text-yellow-400',
-            bg: 'bg-yellow-500/10',
-            border: 'border-yellow-500/20',
+            color: 'text-emerald-400',
+            bg: 'bg-emerald-500/10',
+            border: 'border-emerald-500/20',
             trend: 'High team alignment',
           },
         ].map((kpi, idx) => {
@@ -138,7 +137,7 @@ export default async function DashboardPage() {
           return (
             <div
               key={idx}
-              className="saas-glow-card p-5 rounded-2xl flex flex-col justify-between"
+              className="rounded-xl border border-zinc-800 bg-zinc-900 p-5 flex flex-col justify-between hover:border-zinc-700 transition-colors"
             >
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-medium text-zinc-400">
@@ -164,15 +163,15 @@ export default async function DashboardPage() {
 
       {/* Active Live Sessions Banner */}
       {active.length > 0 && (
-        <div className="rounded-2xl border border-blue-500/30 bg-blue-950/20 p-5 shadow-lg shadow-blue-500/10">
+        <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/10 p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Radio className="w-4 h-4 text-emerald-400 animate-pulse" />
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+              <h2 className="text-xs font-bold text-white uppercase tracking-wider">
                 Live Recording & Diarization in Progress
               </h2>
             </div>
-            <span className="text-xs text-blue-400 font-medium">
+            <span className="text-xs text-emerald-400 font-medium">
               {active.length} active session{active.length > 1 ? 's' : ''}
             </span>
           </div>
@@ -183,7 +182,7 @@ export default async function DashboardPage() {
               return (
                 <div
                   key={m.id}
-                  className="bg-zinc-900/90 border border-zinc-800 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-1">
@@ -227,7 +226,7 @@ export default async function DashboardPage() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-base font-bold text-white tracking-tight">
-              Recent Meeting Intelligence
+              Recent Summaries
             </h2>
             <p className="text-xs text-zinc-400">
               Summaries and action items processed by Claude 3.7 & Deepgram
@@ -235,9 +234,9 @@ export default async function DashboardPage() {
           </div>
           <Link
             href="/meetings"
-            className="text-xs font-semibold text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors"
+            className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 transition-colors"
           >
-            <span>View all meetings archive</span>
+            <span>All meetings</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -249,9 +248,9 @@ export default async function DashboardPage() {
               return (
                 <div
                   key={m.id}
-                  className="saas-glow-card rounded-2xl p-6 border border-zinc-800/80"
+                  className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 hover:border-zinc-700 transition-colors"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-zinc-800/60">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-zinc-800">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="text-base font-bold text-white">
@@ -273,10 +272,10 @@ export default async function DashboardPage() {
 
                     <Link
                       href={`/meetings/${m.id}`}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600/15 hover:bg-blue-600/25 border border-blue-500/30 text-blue-400 text-xs font-semibold transition-all shrink-0 self-start sm:self-auto"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-750 border border-zinc-700 text-zinc-200 text-xs font-medium transition-all shrink-0 self-start sm:self-auto"
                     >
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>Full Workspace View</span>
+                      <FileText className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>View Summary</span>
                       <ArrowUpRight className="w-3 h-3" />
                     </Link>
                   </div>
@@ -287,9 +286,9 @@ export default async function DashboardPage() {
             })}
           </div>
         ) : (
-          <div className="rounded-2xl border border-zinc-800/80 bg-zinc-950/60 p-12 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto mb-4 text-zinc-500">
-              <Sparkles className="w-6 h-6 text-blue-400" />
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-12 text-center">
+            <div className="w-12 h-12 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center mx-auto mb-4 text-zinc-400">
+              <FileText className="w-6 h-6 text-emerald-400" />
             </div>
             <h3 className="text-base font-bold text-white mb-1">
               No meeting summaries yet
@@ -299,9 +298,9 @@ export default async function DashboardPage() {
             </p>
             <Link
               href="/calendar"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-600/20 transition-all"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs font-semibold transition-all active:scale-95"
             >
-              <Zap className="w-3.5 h-3.5" />
+              <Zap className="w-3.5 h-3.5 fill-zinc-950" />
               <span>Go to Calendar & Launch Bot</span>
             </Link>
           </div>

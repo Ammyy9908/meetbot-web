@@ -9,13 +9,10 @@ import { format } from 'date-fns'
 import { 
   ArrowLeft, 
   ExternalLink, 
-  Sparkles, 
   Clock, 
   Calendar, 
   Copy, 
   Check, 
-  Share2, 
-  Layers, 
   FileText, 
   MessageSquare,
   Radio
@@ -101,11 +98,11 @@ export function MeetingDetailClient({ meeting }: { meeting: MeetingData }) {
   return (
     <div className="p-6 md:p-8 max-w-5xl mx-auto space-y-6">
       
-      {/* Back Navigation & Breadcrumb */}
+      {/* Back Navigation & Actions */}
       <div className="flex items-center justify-between">
         <Link
           href="/meetings"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-zinc-400 hover:text-white transition-colors"
+          className="inline-flex items-center gap-2 text-xs font-medium text-zinc-400 hover:text-white transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Meetings</span>
@@ -115,12 +112,12 @@ export function MeetingDetailClient({ meeting }: { meeting: MeetingData }) {
           <button
             onClick={exportFullMarkdown}
             disabled={!summary}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-semibold text-zinc-200 transition-all disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-medium text-zinc-200 transition-all disabled:opacity-50"
           >
             {copiedAll ? (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-emerald-400">Notes Copied (Markdown)</span>
+                <span className="text-emerald-400">Notes Copied</span>
               </>
             ) : (
               <>
@@ -134,16 +131,16 @@ export function MeetingDetailClient({ meeting }: { meeting: MeetingData }) {
             href={meeting.meetUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs font-semibold shadow-sm transition-all active:scale-95"
           >
             <ExternalLink className="w-3.5 h-3.5" />
-            <span>Join Provider</span>
+            <span>Join Meeting</span>
           </a>
         </div>
       </div>
 
       {/* Main Title & Metadata Card */}
-      <div className="p-6 rounded-2xl border border-zinc-800/80 bg-zinc-950/80 backdrop-blur-xl shadow-xl space-y-4">
+      <div className="p-6 rounded-xl border border-zinc-800 bg-zinc-900 shadow-xl space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex flex-wrap items-center gap-2.5 mb-2">
@@ -176,7 +173,7 @@ export function MeetingDetailClient({ meeting }: { meeting: MeetingData }) {
         </div>
 
         {/* Meeting Link Bar */}
-        <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-900/80 border border-zinc-800/60 font-mono text-xs text-zinc-400">
+        <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-950 border border-zinc-800 font-mono text-xs text-zinc-400">
           <span className="truncate max-w-lg">{meeting.meetUrl}</span>
           <span className="text-[11px] text-zinc-500 hidden sm:inline">Encrypted recording node</span>
         </div>
@@ -188,28 +185,28 @@ export function MeetingDetailClient({ meeting }: { meeting: MeetingData }) {
           <div className="flex border-b border-zinc-800">
             <button
               onClick={() => setActiveTab('summary')}
-              className={`flex items-center gap-2 px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 transition-all ${
+              className={`flex items-center gap-2 px-4 py-3 text-xs sm:text-sm font-medium border-b-2 transition-all ${
                 activeTab === 'summary'
-                  ? 'border-blue-500 text-blue-400 bg-blue-500/5'
+                  ? 'border-emerald-400 text-emerald-400 bg-emerald-500/5'
                   : 'border-transparent text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              <Sparkles className="w-4 h-4" />
-              <span>AI Executive Summary</span>
+              <FileText className="w-4 h-4" />
+              <span>Summary & Actions</span>
             </button>
 
             {summary.timeline && summary.timeline.length > 0 && (
               <button
                 onClick={() => setActiveTab('timeline')}
-                className={`flex items-center gap-2 px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 transition-all ${
+                className={`flex items-center gap-2 px-4 py-3 text-xs sm:text-sm font-medium border-b-2 transition-all ${
                   activeTab === 'timeline'
-                    ? 'border-blue-500 text-blue-400 bg-blue-500/5'
+                    ? 'border-emerald-400 text-emerald-400 bg-emerald-500/5'
                     : 'border-transparent text-zinc-400 hover:text-zinc-200'
                 }`}
               >
                 <MessageSquare className="w-4 h-4" />
                 <span>Speaker Diarization</span>
-                <span className="px-1.5 py-0.2 rounded-full bg-zinc-800 text-[10px] text-zinc-300">
+                <span className="px-1.5 py-0.2 rounded-full bg-zinc-800 text-[10px] text-zinc-300 font-mono">
                   {summary.timeline.length}
                 </span>
               </button>
@@ -218,9 +215,9 @@ export function MeetingDetailClient({ meeting }: { meeting: MeetingData }) {
             {summary.transcript && (
               <button
                 onClick={() => setActiveTab('transcript')}
-                className={`flex items-center gap-2 px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 transition-all ${
+                className={`flex items-center gap-2 px-4 py-3 text-xs sm:text-sm font-medium border-b-2 transition-all ${
                   activeTab === 'transcript'
-                    ? 'border-blue-500 text-blue-400 bg-blue-500/5'
+                    ? 'border-emerald-400 text-emerald-400 bg-emerald-500/5'
                     : 'border-transparent text-zinc-400 hover:text-zinc-200'
                 }`}
               >
@@ -232,7 +229,7 @@ export function MeetingDetailClient({ meeting }: { meeting: MeetingData }) {
 
           {/* Tab 1: AI Summary */}
           {activeTab === 'summary' && (
-            <div className="p-6 rounded-2xl border border-zinc-800/80 bg-zinc-950/60 shadow-lg">
+            <div className="p-6 rounded-xl border border-zinc-800 bg-zinc-900 shadow-lg">
               <SummaryView summary={{
                 tldr: summary.tldr || '',
                 decisions: summary.decisions || [],
@@ -246,37 +243,37 @@ export function MeetingDetailClient({ meeting }: { meeting: MeetingData }) {
 
           {/* Tab 2: Timeline View */}
           {activeTab === 'timeline' && summary.timeline && (
-            <div className="p-6 rounded-2xl border border-zinc-800/80 bg-zinc-950/60 shadow-lg">
+            <div className="p-6 rounded-xl border border-zinc-800 bg-zinc-900 shadow-lg">
               <TimelineView timeline={summary.timeline} />
             </div>
           )}
 
           {/* Tab 3: Raw Transcript */}
           {activeTab === 'transcript' && summary.transcript && (
-            <div className="p-6 rounded-2xl border border-zinc-800/80 bg-zinc-950/60 shadow-lg space-y-3">
+            <div className="p-6 rounded-xl border border-zinc-800 bg-zinc-900 shadow-lg space-y-3">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                   Full Meeting Audio Transcription
                 </span>
                 <span className="text-xs text-zinc-500 font-mono">Deepgram Nova-3</span>
               </div>
-              <div className="p-4 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300 leading-relaxed whitespace-pre-wrap max-h-[600px] overflow-y-auto">
+              <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 text-xs font-mono text-zinc-300 leading-relaxed whitespace-pre-wrap max-h-[600px] overflow-y-auto">
                 {summary.transcript}
               </div>
             </div>
           )}
         </div>
       ) : (
-        <div className="p-12 text-center rounded-2xl border border-zinc-800 bg-zinc-950/60">
+        <div className="p-12 text-center rounded-xl border border-zinc-800 bg-zinc-900">
           {meeting.status === 'failed' ? (
             <div>
-              <p className="text-red-400 font-bold text-sm mb-1">Recording Session Failed</p>
+              <p className="text-red-400 font-semibold text-sm mb-1">Recording Session Failed</p>
               <p className="text-xs text-zinc-500">{meeting.error || 'Unknown pipeline failure occurred.'}</p>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-3">
-              <Radio className="w-8 h-8 text-blue-400 animate-pulse" />
-              <p className="text-sm font-bold text-white">Bot is actively processing this meeting</p>
+              <Radio className="w-8 h-8 text-emerald-400 animate-pulse" />
+              <p className="text-sm font-semibold text-white">Bot is actively processing this meeting</p>
               <p className="text-xs text-zinc-400 max-w-sm">
                 Summary, action items, and diarized speakers will be delivered automatically as soon as the meeting ends.
               </p>
